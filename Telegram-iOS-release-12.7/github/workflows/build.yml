@@ -1,0 +1,36 @@
+name: Build Telegram iOS Custom IPA
+
+on:
+  workflow_dispatch: # يخليك تشغل البناء بضغطة زر من المتصفح
+
+jobs:
+  build:
+    runs-on: macos-13 # حجز سيرفر ماك سحابي مجاني من جيت هوب
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0'
+
+      - name: Install Dependencies
+        run: |
+          brew install bazel
+          pip3 install ninja
+
+      - name: Inject Custom Telegram API Keys
+        run: |
+          echo "telegram_api_id = 2899999" > config.json
+          echo "telegram_api_hash = \"77777777777777777777777777777777\"" >> config.json
+
+      - name: Compile and Build IPA
+        run: |
+          make ipa_unassigned 
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Telegram-Custom-Ayman
+          path: build/artifacts/Telegram.ipa
